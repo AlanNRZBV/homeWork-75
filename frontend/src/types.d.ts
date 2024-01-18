@@ -7,3 +7,8 @@ export interface IMessage {
 export interface IBtnType{
   type: string
 }
+
+export interface IMessageMutation {
+  password: string,
+  message: string
+}

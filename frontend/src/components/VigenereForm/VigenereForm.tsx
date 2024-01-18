@@ -1,20 +1,53 @@
 'use client';
 import React, { useState } from 'react';
 import { Grid, TextField } from '@mui/material';
-import {IBtnType, IMessage} from '@/types';
+import { IBtnType, IMessage, IMessageMutation } from '@/types';
 import { LoadingButton } from '@mui/lab';
 import { ArrowDownward, ArrowUpward } from '@mui/icons-material';
+import { useMutation } from '@tanstack/react-query';
+import { axiosApi } from '@/axiosApi';
 
 const VigenereForm = () => {
   const [state, setState] = useState<IMessage>({
     password: '',
-    encoded: '',
     decoded: '',
+    encoded: '',
   });
 
-  const [btnType,setBtnType]=useState<IBtnType>({
-    type:''
-  })
+  const [btnType, setBtnType] = useState<IBtnType>({
+    type: '',
+  });
+
+  const mutation = useMutation({
+    mutationFn: async () => {
+      if (btnType.type === 'encode') {
+        const message: IMessageMutation = {
+          password: state.password,
+          message: state.decoded,
+        };
+        const response = await axiosApi.post('/encode', message);
+
+        if (response.data !== undefined) {
+          setState((prevState) => ({
+            ...prevState,
+            encoded: response.data.encoded,
+          }));
+        }
+      } else {
+        const message: IMessageMutation = {
+          password: state.password,
+          message: state.encoded,
+        };
+        const response = await axiosApi.post('/decode', message);
+        if (response.data !== undefined) {
+          setState((prevState) => ({
+            ...prevState,
+            decoded: response.data.decoded,
+          }));
+        }
+      }
+    },
+  });
 
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -24,24 +57,18 @@ const VigenereForm = () => {
     }));
   };
 
-  const onSubmit=(e:React.FormEvent<HTMLFormElement>)=>{
-    e.preventDefault()
-    if(btnType.type === 'encode'){
-      console.log('to encode')
-      console.log(state)
-    }else if(btnType.type === 'decode'){
-      console.log('to decode')
-      console.log(state)
-    }
-  }
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    await mutation.mutateAsync();
+  };
 
-  const checkBtn =(e:React.MouseEvent<HTMLButtonElement>)=>{
-    const name = (e.target as HTMLButtonElement).name
-    setBtnType(prevState => ({
+  const checkBtn = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const name = (e.target as HTMLButtonElement).name;
+    setBtnType((prevState) => ({
       ...prevState,
-      type:name
-    }))
-  }
+      type: name,
+    }));
+  };
 
   return (
     <>
@@ -55,7 +82,7 @@ const VigenereForm = () => {
               id="decoded"
               value={state.decoded}
               onChange={onInputChange}
-              label="Decode message"
+              label="Decoded message"
             />
           </Grid>
           <Grid container item xs sx={{ mb: 2 }} alignItems="center">
@@ -71,7 +98,7 @@ const VigenereForm = () => {
             </Grid>
             <Grid item>
               <LoadingButton
-                  onClick={checkBtn}
+                onClick={checkBtn}
                 type="submit"
                 color="primary"
                 variant="contained"
@@ -82,7 +109,7 @@ const VigenereForm = () => {
                 Decode
               </LoadingButton>
               <LoadingButton
-                  onClick={checkBtn}
+                onClick={checkBtn}
                 type="submit"
                 color="primary"
                 name="encode"
@@ -101,7 +128,7 @@ const VigenereForm = () => {
               id="encoded"
               value={state.encoded}
               onChange={onInputChange}
-              label="Encode message"
+              label="Encoded message"
             />
           </Grid>
         </Grid>
