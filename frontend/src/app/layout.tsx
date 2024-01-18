@@ -1,7 +1,7 @@
-import './globals.css'
+'use client'
 import React from "react";
 import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
-import theme from "../../theme";
+import theme from "../theme";
 import {Container, CssBaseline, ThemeProvider} from "@mui/material";
 import {AppRouterCacheProvider} from "@mui/material-nextjs/v13-appRouter";
 
@@ -25,7 +25,7 @@ export default function RootLayout({
             <header>
             </header>
             <main>
-              <Container maxWidth="xl">
+              <Container maxWidth="xl" sx={{paddingTop:2}}>
                 {children}
               </Container>
             </main>
