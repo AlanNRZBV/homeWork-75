@@ -21,29 +21,40 @@ const VigenereForm = () => {
   const mutation = useMutation({
     mutationFn: async () => {
       if (btnType.type === 'encode') {
-        const message: IMessageMutation = {
-          password: state.password,
-          message: state.decoded,
-        };
-        const response = await axiosApi.post('/encode', message);
+        if (state.decoded.trim() !== '') {
+          const message: IMessageMutation = {
+            password: state.password,
+            message: state.decoded,
+          };
 
-        if (response.data !== undefined) {
-          setState((prevState) => ({
-            ...prevState,
-            encoded: response.data.encoded,
-          }));
+          const response = await axiosApi.post('/encode', message);
+
+          if (response.data !== undefined) {
+            setState((prevState) => ({
+              ...prevState,
+              decoded: '',
+              encoded: response.data.encoded,
+            }));
+          }
+        } else {
+          alert('Encoding message must not be empty');
         }
       } else {
-        const message: IMessageMutation = {
-          password: state.password,
-          message: state.encoded,
-        };
-        const response = await axiosApi.post('/decode', message);
-        if (response.data !== undefined) {
-          setState((prevState) => ({
-            ...prevState,
-            decoded: response.data.decoded,
-          }));
+        if (state.encoded.trim() !== '') {
+          const message: IMessageMutation = {
+            password: state.password,
+            message: state.encoded,
+          };
+          const response = await axiosApi.post('/decode', message);
+          if (response.data !== undefined) {
+            setState((prevState) => ({
+              ...prevState,
+              encoded: '',
+              decoded: response.data.decoded,
+            }));
+          }
+        } else {
+          alert('Decoding message must not be empty');
         }
       }
     },
@@ -103,6 +114,8 @@ const VigenereForm = () => {
                 color="primary"
                 variant="contained"
                 name="decode"
+                loading={mutation.isPending}
+                disabled={mutation.isPending}
                 startIcon={<ArrowUpward />}
                 sx={{ mr: 2 }}
               >
@@ -114,6 +127,8 @@ const VigenereForm = () => {
                 color="primary"
                 name="encode"
                 variant="contained"
+                loading={mutation.isPending}
+                disabled={mutation.isPending}
                 startIcon={<ArrowDownward />}
               >
                 Encode
