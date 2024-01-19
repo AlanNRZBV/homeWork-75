@@ -17,9 +17,9 @@ const theme = createTheme({
       defaultProps: {
         variant: 'outlined',
         fullWidth: true,
-      }
-    }
-  }
+      },
+    },
+  },
 });
 
 export default theme;
